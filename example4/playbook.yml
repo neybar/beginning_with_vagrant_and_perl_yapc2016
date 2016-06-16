@@ -1,0 +1,11 @@
+---
+- hosts: all
+  tasks:
+  - name: Install apache
+    package: name=httpd state=installed
+    notify: [restart apache]
+    tags: [packages]
+
+  handlers:
+    - name: restart apache
+      service: name=httpd state=restarted
