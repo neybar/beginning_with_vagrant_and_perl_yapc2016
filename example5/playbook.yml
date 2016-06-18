@@ -1,0 +1,17 @@
+---
+- hosts: all
+  tasks:
+  - name: Install other packages
+    package: name={{ item }} state=installed
+    with_items:
+        - perl-App-cpanminus
+    tags: [packages]
+
+  - name: Install CPANM packages
+    cpanm: name={{ item }} system_lib=yes
+    with_items:
+        - Mojolicious
+    tags: [packages]
+
+  - name: Start Hypnotoad
+    command: /usr/local/bin/hypnotoad /opt/source/app/hello_world.pl
