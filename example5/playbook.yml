@@ -1,11 +1,29 @@
 ---
 - hosts: all
   tasks:
-  - name: Install other packages
+  - name: Instal EPEL
+    package: name=epel-release state=installed
+
+  - name: Install system packages
     package: name={{ item }} state=installed
     with_items:
         - perl-App-cpanminus
+        - nginx
     tags: [packages]
+    notify: [restart nginx]
+
+  - name: Make sure nginx starts on boot
+    service: name=nginx enabled=yes
+    notify: [restart_nginx]
+    ignore_errors: yes
+    tags: [packages]
+
+  - name: Copy nginx config
+    template: 
+      src: nginx.conf
+      dest: /etc/nginx/nginx.conf
+    tags: [configuration]
+    notify: [restart_nginx]
 
   - name: Install CPANM packages
     cpanm: name={{ item }} system_lib=yes
@@ -15,3 +33,7 @@
 
   - name: Start Hypnotoad
     command: /usr/local/bin/hypnotoad /opt/source/app/hello_world.pl
+
+  handlers:
+    - name: restart nginx
+      service: name=nginx state=restarted
